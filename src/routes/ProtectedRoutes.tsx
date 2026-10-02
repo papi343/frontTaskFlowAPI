@@ -10,9 +10,11 @@ export function ProtectedRoutes() {
     const location = useLocation();
 
     if (isLoading) {
-        <div className="flex min-h-screen items-center justify-center">
-            <p className="text-gray-600">Loading...</p>
-        </div>
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                <p className="text-gray-600">Loading...</p>
+            </div>
+        );
     }
     if (!IsAuthentificated) {
         return <Navigate to="/login" replace state={{ from: location }} />

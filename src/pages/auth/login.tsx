@@ -9,7 +9,7 @@ import { UseAuth } from "../../Hooks/UseAuth";
 
 
 type loginFormData = z.infer<typeof loginShema>;
-function login() {
+function Login() {
     const { login } = UseAuth()
     const location = useLocation();
     const navigate = useNavigate();
@@ -99,4 +99,4 @@ function login() {
     )
 }
 
-export default login;
+export default Login;

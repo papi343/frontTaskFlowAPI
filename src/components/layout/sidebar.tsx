@@ -24,7 +24,7 @@ function Sidebar() {
 
                         <NavLink key={item.path}
                             to={item.path}
-                            className={({ isActive }) =>
+                            className={({ isActive }: { isActive: boolean }) =>
                                 `w-full flex items-center px-3 py-2 rounded-md text-sm font-medium
                             ${isActive
                                     ? "bg-blue-500 text-white"
