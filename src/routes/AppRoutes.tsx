@@ -12,6 +12,7 @@ import Tasks from "../pages/tasks/Tasks";
 import TaskDetails from "../pages/tasks/TaskDetails";
 
 import Notifications from "../pages/notifications/Notifications";
+import ProtectedRoutes from "./ProtectedRoutes";
 
 function AppRoutes() {
     return (
@@ -22,13 +23,14 @@ function AppRoutes() {
                 <Route path="/register" element={<Register />} />
 
                 {/* private routes */}
-
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/projects/:id" element={<ProjectDetails />} />
-                <Route path="/tasks" element={<Tasks />} />
-                <Route path="/tasks/:id" element={<TaskDetails />} />
-                <Route path="/notifications" element={<Notifications />} />
+                <Route element={<ProtectedRoutes />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/projects" element={<Projects />} />
+                    <Route path="/projects/:id" element={<ProjectDetails />} />
+                    <Route path="/tasks" element={<Tasks />} />
+                    <Route path="/tasks/:id" element={<TaskDetails />} />
+                    <Route path="/notifications" element={<Notifications />} />
+                </Route>
 
 
                 {/* default route*/}
