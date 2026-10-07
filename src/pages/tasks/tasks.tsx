@@ -1,143 +1,49 @@
-import { useSearchParams } from "react-router-dom";
-import type { CreateTaskRequest } from "../../types/task";
-import { useState } from "react";
-import useTasks from "../../Hooks/useTasks";
-import TaskForm from "../../components/tasks/TaskForm";
-import DashboardLayout from "../../components/layout/DashboardLayout";
-import TaskCard from "../../components/tasks/TaskCard";
-
-
-
-
-
+import { Link } from 'react-router-dom';
+import DashboardLayout from '../../components/layout/DashboardLayout';
+import useProjects from '../../Hooks/useProjects';
 
 function Tasks() {
-    const [searchParams] = useSearchParams();
-    const projectId = searchParams.get('projectId');
+  const { projects, isLoading } = useProjects();
 
-    const {
-        tasks,
-        isLoading,
-        error,
-        createTask,
-        deleteTask,
-    } = useTasks(projectId ?? '');
+  return (
+    <DashboardLayout>
+      <div className="max-w-3xl mx-auto space-y-6">
+        <div>
+          <h2 className="text-2xl font-semibold text-gray-900 tracking-tight">Tâches</h2>
+          <p className="mt-1 text-sm text-gray-500">Sélectionnez un projet pour voir et gérer ses tâches.</p>
+        </div>
 
-    const [showForm, setShowForm] = useState(false);
-    const [formError, setFormError] = useState("");
-
-    const handleCreate = async (data: Omit<CreateTaskRequest, "projectId">) => {
-        if (!projectId) {
-            setFormError("Aucun projet n'a été sélectionné.");
-
-            return;
-        }
-        setFormError("");
-
-        try {
-            await createTask({ projectId, ...data })
-        }
-        catch (error) {
-            if (error instanceof Error) {
-                setFormError(error.message);
-            } else {
-                setFormError("une erreur s'est produite");
-            }
-        }
-    }
-
-
-
-    const handleDelete = async (id: string) => {
-        try {
-            await deleteTask(id);
-        }
-        catch (error) {
-            if (error instanceof Error) {
-                setFormError(error.message);
-            } else {
-                setFormError("une erreur s'est produite");
-            }
-        }
-    }
-
-    return (
-        <DashboardLayout>
-            <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-900">
-                            Tasks
-                        </h2>
-
-                        <p className="mt-1 text-gray-600">
-                            Gérez les tâches de votre projet.
-                        </p>
-                    </div>
-
-                    <button
-                        type="button"
-                        onClick={() =>
-                            setShowForm((prev) => !prev)
-                        }
-                        className="rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white"
-                    >
-                        {showForm
-                            ? "Annuler"
-                            : "Nouvelle tâche"}
-                    </button>
-                </div>
-
-                {showForm && projectId && (
-                    <TaskForm
-                        onSubmit={handleCreate}
-                        submitLabel="Créer la tâche"
-                    />
-                )}
-
-                {formError && (
-                    <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-                        {formError}
-                    </p>
-                )}
-
-                {isLoading && (
-                    <p className="text-gray-600">
-                        Chargement des tâches...
-                    </p>
-                )}
-
-                {error && (
-                    <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-                        {error}
-                    </p>
-                )}
-
-                {!isLoading &&
-                    !error &&
-                    tasks.length === 0 && (
-                        <div className="rounded-xl border bg-white p-8 text-center">
-                            <p className="text-gray-600">
-                                Aucune tâche pour le moment.
-                            </p>
-                        </div>
-                    )}
-
-                {!isLoading &&
-                    tasks.length > 0 && (
-                        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                            {tasks.map((task) => (
-                                <TaskCard
-                                    key={task.id}
-                                    task={task}
-                                    onDelete={handleDelete}
-                                />
-                            ))}
-                        </div>
-                    )}
-            </div>
-        </DashboardLayout>
-    );
+        {isLoading ? (
+          <p className="text-sm text-gray-500">Chargement des projets...</p>
+        ) : projects.length === 0 ? (
+          <div className="bg-white border border-gray-100 rounded-xl p-8 text-center">
+            <p className="text-sm text-gray-500 mb-4">Vous n'avez pas de projets.</p>
+            <Link to="/projects" className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-lg">
+              Aller aux projets
+            </Link>
+          </div>
+        ) : (
+          <div className="grid gap-3">
+            {projects.map((project) => (
+              <Link
+                key={project.id}
+                to={`/projects/${project.id}`}
+                className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm transition-all"
+              >
+                <span className="font-medium text-gray-900">{project.nom}</span>
+                <span className="text-sm text-gray-500 flex items-center">
+                  Gérer les tâches
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </DashboardLayout>
+  );
 }
 
 export default Tasks;

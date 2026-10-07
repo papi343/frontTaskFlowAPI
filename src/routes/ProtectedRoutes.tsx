@@ -1,25 +1,18 @@
-import { Outlet, useLocation, Navigate } from "react-router-dom";
-import { UseAuth } from "../Hooks/UseAuth";
+import { Navigate, Outlet } from 'react-router-dom';
+import { UseAuth } from '../Hooks/UseAuth';
 
+function ProtectedRoutes() {
+  const { isAuthenticated, isLoading } = UseAuth();
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#f8f8f7] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
-
-
-export function ProtectedRoutes() {
-    const { IsAuthentificated, isLoading } = UseAuth();
-    const location = useLocation();
-
-    if (isLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center">
-                <p className="text-gray-600">Loading...</p>
-            </div>
-        );
-    }
-    if (!IsAuthentificated) {
-        return <Navigate to="/login" replace state={{ from: location }} />
-    }
-    return <Outlet />;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
 export default ProtectedRoutes;

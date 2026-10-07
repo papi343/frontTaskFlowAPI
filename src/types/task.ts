@@ -1,43 +1,15 @@
-
-
-
-export type TaskStatus =
-    | "TODO"
-    | "IN_PROGRESS"
-    | "DONE";
-
-export type TaskPriority =
-    | "LOW"
-    | "MEDIUM"
-    | "HIGH"
-    | "URGENT";
-
 export interface Task {
-    id: string;
-    titre: string;
-    description: string | null;
-    status: TaskStatus;
-    priority: TaskPriority;
-    projectId: string;
-    assigneeId: string | null;
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  titre: string;
+  complete: boolean;
+  projectId: number;
 }
 
 export interface CreateTaskRequest {
-    titre: string;
-    description?: string;
-    status?: TaskStatus;
-    priority?: TaskPriority;
-    projectId: string;
-    assigneeId?: string;
+  titre: string;
+  projectId: number;
 }
 
-
 export interface UpdateTaskRequest {
-    titre?: string;
-    description?: string;
-    status?: TaskStatus;
-    priority?: TaskPriority;
-    assigneeId?: string;
+  complete: boolean;
 }

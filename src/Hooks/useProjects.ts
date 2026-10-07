@@ -1,68 +1,49 @@
-import { useCallback, useEffect, useState } from "react";
-import type { Project, UpdateProjectRequest, CreateProjectRequest } from "../types/Project";
+import { useCallback, useEffect, useState } from 'react';
+import type { Project, CreateProjectRequest, UpdateProjectRequest } from '../types/Project';
 import * as projectAPI from '../Api/projects.api';
 
-
 function useProjects() {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
-
-    const fetchProjetcs = useCallback(async () => {
-        setIsLoading(true);
-        setError('');
-        try {
-            const data = await projectAPI.getProjects();
-            setProjects(data);
-        } catch {
-            setError("une erreur s'est produite");
-        } finally {
-            setIsLoading(false);
-        }
-
-
-    }, []);
-
-    useEffect(() => {
-        fetchProjetcs();
-    }, [fetchProjetcs]);
-
-    const createProject = async (data: CreateProjectRequest) => {
-        const project = await projectAPI.createProject(data);
-        setProjects((prev) => [project, ...prev]);
-        return project;
+  const fetchProjects = useCallback(async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const data = await projectAPI.getProjects();
+      setProjects(data);
+    } catch {
+      setError("Impossible de charger les projets.");
+    } finally {
+      setIsLoading(false);
     }
-    const updateProject = async (id: string, data: UpdateProjectRequest) => {
-        const project = await projectAPI.updateProject(id, data);
-        setProjects((prev) =>
-            prev.map((proj) =>
-                proj.id === id ? project : proj)
-        );
-        return project;
-    }
+  }, []);
 
-    const getProject = async (id: string) => {
-        const project = projectAPI.getProject(id);
-        return project;
-    }
+  useEffect(() => { fetchProjects(); }, [fetchProjects]);
 
-    const deleteProject = async (id: string) => {
-        await projectAPI.deleteProjec(id);
-        setProjects((prev) => prev.filter((project) => project.id !== id));
-    };
+  const createProject = async (data: CreateProjectRequest) => {
+    const project = await projectAPI.createProject(data);
+    setProjects((prev) => [project, ...prev]);
+    return project;
+  };
 
-    return {
-        projects,
-        isLoading,
-        error,
-        fetchProjetcs,
-        createProject,
-        updateProject,
-        getProject,
-        deleteProject,
-    }
+  const updateProject = async (id: number, data: UpdateProjectRequest) => {
+    const project = await projectAPI.updateProject(id, data);
+    setProjects((prev) => prev.map((p) => (p.id === id ? project : p)));
+    return project;
+  };
 
+  const getProject = async (id: number) => {
+    return projectAPI.getProject(id);
+  };
 
+  const deleteProject = async (id: number) => {
+    await projectAPI.deleteProject(id);
+    setProjects((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  return { projects, isLoading, error, fetchProjects, createProject, updateProject, getProject, deleteProject };
 }
+
 export default useProjects;
