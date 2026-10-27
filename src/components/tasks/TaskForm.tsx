@@ -4,58 +4,74 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import type { CreateTaskRequest } from '../../types/task';
 
 const schema = z.object({
-  titre: z.string().min(2, 'Le titre de la tâche est requis'),
+  titre: z.string().min(2, 'Le titre de la tâche doit contenir au moins 2 caractères'),
 });
 
 type TaskFormData = z.infer<typeof schema>;
 
 interface TaskFormProps {
   projectId: number;
-  onSubmit: (data: CreateTaskRequest) => void;
+  onSubmit: (data: CreateTaskRequest) => Promise<unknown> | void;
   isSubmitting?: boolean;
   onCancel?: () => void;
+  placeholder?: string;
 }
 
-function TaskForm({ projectId, onSubmit, isSubmitting = false, onCancel }: TaskFormProps) {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<TaskFormData>({
+function TaskForm({ projectId, onSubmit, isSubmitting = false, onCancel, placeholder }: TaskFormProps) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<TaskFormData>({
     resolver: zodResolver(schema),
   });
 
-  const handleFormSubmit = (data: TaskFormData) => {
-    onSubmit({ titre: data.titre, projectId });
-    reset(); // reset form after submit so user can add another
+  const handleFormSubmit = async (data: TaskFormData) => {
+    await onSubmit({ titre: data.titre, projectId });
+    reset();
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
-      <div className="flex items-start gap-3">
-        <div className="flex-1">
+    <form
+      onSubmit={handleSubmit(handleFormSubmit)}
+      className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs"
+    >
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        <div className="flex-1 relative">
           <input
             type="text"
             {...register('titre')}
-            placeholder="Qu'y a-t-il à faire ?"
-            className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-lg bg-white outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100 transition-all placeholder-gray-400"
-            autoFocus
+            placeholder={placeholder || "Nouvelle tâche... (Appuyez sur Entrée pour valider)"}
+            className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 bg-slate-50/50 outline-none focus:border-slate-900 focus:bg-white focus:ring-2 focus:ring-slate-900/10 transition-all placeholder:text-slate-400"
           />
-          {errors.titre && <p className="mt-1 text-xs text-red-600">{errors.titre.message}</p>}
         </div>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="px-4 py-2.5 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors whitespace-nowrap"
-        >
-          {isSubmitting ? 'Ajout...' : 'Ajouter'}
-        </button>
-        {onCancel && (
+        <div className="flex items-center gap-2 justify-end">
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-3.5 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
+            >
+              Annuler
+            </button>
+          )}
           <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap"
+            type="submit"
+            disabled={isSubmitting}
+            className="px-4 py-2.5 text-xs font-semibold text-white bg-slate-900 rounded-xl hover:bg-slate-800 active:scale-[0.99] disabled:opacity-60 transition-all shadow-xs flex items-center justify-center gap-1.5 whitespace-nowrap"
           >
-            Fermer
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span>{isSubmitting ? 'Ajout...' : 'Ajouter la tâche'}</span>
           </button>
-        )}
+        </div>
       </div>
+      {errors.titre && (
+        <p className="mt-1.5 text-xs text-rose-600 font-medium pl-1">{errors.titre.message}</p>
+      )}
     </form>
   );
 }
