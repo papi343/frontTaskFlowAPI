@@ -1,14 +1,20 @@
+import { useState, type ReactNode } from 'react';
 import Sidebar from './sidebar';
 import Header from './header';
-import type { ReactNode } from 'react';
 
-function DashboardLayout({ children }: { children: ReactNode }) {
+interface DashboardLayoutProps {
+  children: ReactNode;
+}
+
+function DashboardLayout({ children }: DashboardLayoutProps) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
-    <div className="flex w-full min-h-screen bg-[#f8f8f7]">
-      <Sidebar />
+    <div className="flex w-full min-h-screen bg-slate-50 text-slate-900">
+      <Sidebar mobileOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
       <div className="flex flex-col flex-1 min-w-0">
-        <Header />
-        <main className="flex-1 p-6 max-w-5xl w-full">
+        <Header onOpenMobileMenu={() => setMobileMenuOpen(true)} />
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl w-full mx-auto">
           {children}
         </main>
       </div>
@@ -17,3 +23,4 @@ function DashboardLayout({ children }: { children: ReactNode }) {
 }
 
 export default DashboardLayout;
+
